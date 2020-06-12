@@ -7,13 +7,13 @@ Date: June 11, 2020
 
 
 Notes: 
-Created two functions that have similar functions:
+Created two functions that do similar things:
 
-fetch_DP - Uses some pysam utilities, use this extracting the depth of sequence 
-coverage at the site of each variant.
+fetch_DP -  Parses our variant data including the depth of sequence 
+coverage at the site of each variant. Uses some pysam utilities.
 
-variation_fetch - Reads the VCF file line-by-line and extracts out variant type and
-number of reads supporting reference and variant (best guess being the RO and AO flag
+variation_fetch - Reads the VCF file line-by-line and parses out variant type and
+number of reads supporting reference and variant (my best guess being the RO and AO flag
 in the FORMAT portion of the VCF). It also calculates the percentage of reads supporting 
 variant versus the reference reads.
 """
@@ -26,17 +26,24 @@ from pysam import VariantFile
 import pysam
 import pandas as pd
 import numpy as np
-import gzip
 import requests
+
+# command line arguments for 
+parser = argparse.ArgumentParser()
+
+parser.add_argument("-vcf", help="vcf file")
+parser.add_argument("-output", help="path to final annotation output file and output file name")
+parser.add_argument("-api", help="path to table generated for retrieve_API.py file and output file name ")
+
+args = parser.parse_args()
 
 
 # setup paths for python program to run
-#sample_vcf = "/Users/crystalvaldez/Dropbox/Interviews/Tempus/trunc.vcf"
-sample_vcf = "/Users/crystalvaldez/Dropbox/Interviews/Tempus/Challenge_data.vcf"
+sample_vcf =args.vcf
+# output files from functions below
+output_csv = args.output
+var_for_API = args.api
 
-# output files from functions below: (could be converted to argparse for less harded coded paths)
-output_csv = "/Users/crystalvaldez/Dropbox/Interviews/Tempus/variation_output.csv"
-var_for_API =  "/Users/crystalvaldez/Dropbox/Interviews/Tempus/variation_info_for_API.csv"
 
 # read in VCF file
 vcf_in = VariantFile(sample_vcf)
@@ -62,7 +69,8 @@ def fetch_DP(vcf_file):
 
 	
 	# write to file to be used for retrieve_API.py script
-	chrom_list.to_csv('variation_info_for_API.csv', sep=',')
+	#chrom_list.to_csv('variation_info_for_API.csv', sep=',')
+	chrom_list.to_csv(var_for_API,sep=',')
 
 	return chrom_list
 
@@ -140,7 +148,8 @@ def variation_fetch(vcf_file):
 		'percent vrc/rrc':percent_aoro_array,'variant type':var_type_array},
 		columns=['reference read count (rrc)', 'variant read count (vrc)', 'percent vrc/rrc', 'variant type'])
 	print var_df
-	var_df.to_csv('variation_output.csv', sep=',')
+	#var_df.to_csv('variation_output.csv', sep=',')
+	var_df.to_csv(output_csv, sep=',')
 
 print variation_fetch(sample_vcf)
 
@@ -168,17 +177,11 @@ def create_final_table(read_depth,variant_data):
 	"""
 	final_df = pd.merge(read_depth, variant_data)
 	final_df = final_df.loc[:, ~final_df.columns.str.contains('^Unnamed')]
-	final_df.to_csv('final_variation_tool_output.csv', sep=',')
+	final_df.to_csv(output_csv, sep=',')
 
 	print final_df
 
 print create_final_table(read_depth_input, variation_input)
-
-
-
-#print create_final_table()
-
-
 
 
 
