@@ -27,5 +27,5 @@ VCF file
 Disclaimer
 ----------------------
 
-The second script, retrieve_API.py is not complete. This was my first attempt at extracting data from an API and with unstable internewt at home, I was not able to test it to its full capacity. Currently the path to read in the output file from variation_tool.py is hard coded into the script (line 20) and will need to be changed for each user
+The second script, retrieve_API.py is not complete. This was my first attempt at extracting data from an API and with unstable internet at home, I was not able to test it to its full capacity. Currently the path to read in the output file from variation_tool.py is hard coded into the script (line 20) and will need to be changed for each user
 
